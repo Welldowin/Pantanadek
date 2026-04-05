@@ -1,773 +1,129 @@
 <!doctype html>
-<html lang="th" class="h-full">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kids Math Adventure</title>
-  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
-  <script src="/_sdk/element_sdk.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&amp;display=swap" rel="stylesheet">
-  <style>
-    * { font-family: 'Nunito', sans-serif; }
-    html, body { height: 100%; margin: 0; }
-
-    .sky-bg {
-      background: linear-gradient(180deg, #43cea2 0%, #85e7c9 30%, #b6f5d8 50%, #f9fbe7 70%, #fff9c4 100%);
-    }
-
-    .cloud {
-      position: absolute;
-      background: white;
-      border-radius: 50px;
-      opacity: 0.7;
-      animation: floatCloud linear infinite;
-    }
-    .cloud::before, .cloud::after {
-      content: '';
-      position: absolute;
-      background: white;
-      border-radius: 50%;
-    }
-    .cloud::before { width: 60%; height: 130%; top: -50%; left: 15%; }
-    .cloud::after { width: 45%; height: 110%; top: -30%; right: 15%; }
-
-    @keyframes floatCloud {
-      from { transform: translateX(-150px); }
-      to { transform: translateX(calc(100vw + 150px)); }
-    }
-
-    .grass {
-      background: linear-gradient(0deg, #4caf50 0%, #66bb6a 40%, #81c784 70%, transparent 100%);
-    }
-
-    .flower {
-      position: absolute;
-      font-size: 24px;
-      animation: sway 2s ease-in-out infinite alternate;
-    }
-    @keyframes sway { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
-
-    .sun {
-      position: absolute;
-      top: 15px;
-      right: 30px;
-      width: 70px;
-      height: 70px;
-      background: #ffd54f;
-      border-radius: 50%;
-      box-shadow: 0 0 40px #ffecb3, 0 0 80px #ffe08270;
-      animation: pulse 3s ease-in-out infinite;
-    }
-    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-
-    .card {
-      transition: all 0.2s ease;
-      cursor: pointer;
-      user-select: none;
-    }
-    .card:hover { transform: translateY(-6px) scale(1.08); }
-    .card:active { transform: scale(0.95); }
-
-    .card-color-0 { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
-    .card-color-1 { background: linear-gradient(135deg, #ffa726, #fb8c00); }
-    .card-color-2 { background: linear-gradient(135deg, #ffee58, #fdd835); color: #5d4037 !important; }
-    .card-color-3 { background: linear-gradient(135deg, #66bb6a, #43a047); }
-    .card-color-4 { background: linear-gradient(135deg, #42a5f5, #1e88e5); }
-    .card-color-5 { background: linear-gradient(135deg, #ab47bc, #8e24aa); }
-    .card-color-6 { background: linear-gradient(135deg, #ec407a, #d81b60); }
-    .card-color-7 { background: linear-gradient(135deg, #26c6da, #00acc1); }
-    .card-color-8 { background: linear-gradient(135deg, #8d6e63, #6d4c41); }
-    .card-color-9 { background: linear-gradient(135deg, #78909c, #546e7a); }
-
-    @keyframes bounceIn {
-      0% { transform: scale(0); opacity: 0; }
-      50% { transform: scale(1.2); }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    .bounce-in { animation: bounceIn 0.4s ease forwards; }
-
-    @keyframes celebrate {
-      0% { transform: scale(1); }
-      25% { transform: scale(1.3) rotate(-5deg); }
-      50% { transform: scale(1.3) rotate(5deg); }
-      75% { transform: scale(1.1) rotate(-2deg); }
-      100% { transform: scale(1); }
-    }
-    .celebrate { animation: celebrate 0.6s ease; }
-
-    @keyframes shake {
-      0%,100% { transform: translateX(0); }
-      20% { transform: translateX(-10px); }
-      40% { transform: translateX(10px); }
-      60% { transform: translateX(-6px); }
-      80% { transform: translateX(6px); }
-    }
-    .shake { animation: shake 0.5s ease; }
-
-    @keyframes confettiFall {
-      0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
-      100% { transform: translateY(120px) rotate(720deg); opacity: 0; }
-    }
-
-    .star-particle {
-      position: absolute;
-      font-size: 20px;
-      pointer-events: none;
-      animation: confettiFall 1.2s ease forwards;
-    }
-
-    .question-box {
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(8px);
-      border: 4px solid #fff;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-    }
-
-    .score-badge {
-      background: linear-gradient(135deg, #ffd54f, #ffb300);
-      box-shadow: 0 4px 15px rgba(255,179,0,0.4);
-    }
-
-    .op-badge {
-      font-size: 2rem;
-      font-weight: 900;
-    }
-
-    .memory-card {
-      width: 70px;
-      height: 70px;
-      cursor: pointer;
-      perspective: 1000px;
-      transition: all 0.2s ease;
-    }
-    .memory-card:hover:not(.matched):not(.flipped) { transform: scale(1.08); }
-    .memory-card.matched { cursor: default; opacity: 0.6; }
-
-    .memory-card-inner {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      transition: transform 0.6s;
-      transform-style: preserve-3d;
-    }
-
-    .memory-card.flipped .memory-card-inner {
-      transform: rotateY(180deg);
-    }
-
-    .memory-card-face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 12px;
-      font-size: 32px;
-      font-weight: bold;
-    }
-
-    .memory-card-front {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border: 3px solid #5568d3;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-
-    .memory-card-back {
-      background: white;
-      transform: rotateY(180deg);
-      border: 3px solid #ddd;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-
-    @keyframes shuffle {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    .shuffle-animation { animation: shuffle 0.8s ease; }
-
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 50;
-    }
-
-    .modal-content {
-      background: white;
-      border-radius: 20px;
-      padding: 30px;
-      text-align: center;
-      max-width: 400px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    }
-  </style>
-  <style>body { box-sizing: border-box; }</style>
-  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
- </head>
- <body class="h-full overflow-auto">
-  <div id="app" class="sky-bg w-full h-full relative overflow-hidden flex flex-col items-center" style="min-height:100%;"><!-- Sun -->
-   <div class="sun"></div><!-- Clouds -->
-   <div class="cloud" style="width:100px;height:35px;top:40px;animation-duration:25s;animation-delay:-5s;"></div>
-   <div class="cloud" style="width:70px;height:25px;top:80px;animation-duration:35s;animation-delay:-15s;"></div>
-   <div class="cloud" style="width:90px;height:30px;top:20px;animation-duration:30s;animation-delay:-22s;"></div><!-- Title -->
-   <div class="relative z-10 mt-4 mb-1 text-center">
-    <h1 id="gameTitle" class="text-2xl sm:text-3xl font-black text-white drop-shadow-lg tracking-wide">🌈 บวกลบเลขแสนสนุก 🌈</h1>
-   </div><!-- Score & Streak -->
-   <div class="relative z-10 flex gap-3 mb-2">
-    <div class="score-badge rounded-full px-4 py-1 flex items-center gap-1"><span>⭐</span> <span id="scoreText" class="font-black text-amber-900 text-lg">0</span>
-    </div>
-    <div class="bg-white/80 rounded-full px-4 py-1 flex items-center gap-1"><span>🔥</span> <span id="streakText" class="font-bold text-orange-600 text-lg">0</span>
-    </div>
-   </div><!-- Question Area -->
-   <div id="questionArea" class="question-box relative z-10 rounded-3xl px-6 py-5 mx-4 text-center max-w-md w-full">
-    <div id="questionContent" class="flex items-center justify-center gap-2 flex-wrap"><span id="numA" class="text-5xl sm:text-6xl font-black text-emerald-600 bounce-in">3</span> <span id="opSign" class="op-badge text-pink-500">+</span> <span id="numB" class="text-5xl sm:text-6xl font-black text-blue-500 bounce-in">2</span> <span class="text-4xl font-black text-gray-400">=</span> <span class="text-5xl sm:text-6xl font-black text-amber-500">?</span>
-    </div>
-    <div id="feedback" class="mt-2 text-xl font-bold h-8"></div>
-    <div id="confettiContainer" class="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl"></div>
-   </div><!-- Answer Cards -->
-   <div class="relative z-10 mt-4 px-4 max-w-lg w-full">
-    <p class="text-center text-white font-bold drop-shadow mb-2 text-sm">🎯 เลือกคำตอบที่ถูกต้อง</p>
-    <div id="cardsGrid" class="grid grid-cols-5 gap-2 sm:gap-3"></div>
-   </div><!-- Memory Game Section (Hidden initially) -->
-   <div id="memoryGameSection" class="relative z-10 mt-6 px-4 max-w-md w-full" style="display: none;">
-    <div class="bg-white/90 rounded-3xl p-6 shadow-xl">
-     <h2 class="text-2xl font-black text-center text-purple-600 mb-2">🎮 จับคู่สัตว์น้อย</h2>
-     <p class="text-center text-gray-700 font-bold text-sm mb-4">⚠️ ถ้าเจอเสือจะสลับตำแหน่ง! พยายามจับคู่ 4 คู่ให้สำเร็จ</p>
-     <p class="text-center text-amber-600 font-bold text-xs mb-3">ความผิดพลาด: <span id="failureCount">0</span>/2 | เทิร์น: <span id="turnCount">0</span></p>
-     <div id="memoryGrid" class="flex flex-wrap justify-center gap-3"></div>
-     <div class="mt-4 text-center">
-      <p id="memoryProgress" class="text-sm font-bold text-gray-600">จับคู่ได้: <span id="matchedCount">0</span>/4</p>
-     </div>
-    </div>
-   </div><!-- Leaderboard Modal -->
-   <div id="leaderboardModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content">
-     <h2 class="text-3xl font-black text-purple-600 mb-4">🏆 Leaderboard</h2>
-     <div id="leaderboardList" class="text-left max-h-64 overflow-y-auto mb-4"></div>
-     <div id="nameInputSection" style="display: none;">
-      <p class="text-sm font-bold text-gray-600 mb-2">บันทึกชื่อของคุณ (เทิร์น: <span id="finalTurns">0</span>):</p><input type="text" id="playerNameInput" class="w-full border-2 border-purple-400 rounded-lg px-3 py-2 font-bold mb-2" placeholder="ชื่อของคุณ"> <button onclick="submitPlayerScore()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-black rounded-lg py-2">บันทึกคะแนน</button>
-     </div><button onclick="closeLeaderboard()" class="mt-4 w-full bg-gray-300 text-gray-700 font-bold rounded-lg py-2">ปิด</button>
-    </div>
-   </div>
-   <div class="grass absolute bottom-0 left-0 right-0 h-20 z-0"><span class="flower" style="bottom:30px;left:8%;">🌸</span> <span class="flower" style="bottom:25px;left:22%;animation-delay:0.3s;">🌼</span> <span class="flower" style="bottom:35px;left:45%;animation-delay:0.7s;">🌷</span> <span class="flower" style="bottom:28px;left:65%;animation-delay:0.5s;">🌻</span> <span class="flower" style="bottom:32px;left:82%;animation-delay:1s;">🌺</span> <span class="flower" style="bottom:20px;left:92%;animation-delay:0.2s;">🌿</span>
-   </div><!-- Little characters -->
-   <div class="absolute bottom-16 left-4 z-10 text-4xl" style="animation:sway 3s ease-in-out infinite alternate;">
-    🐛
-   </div>
-   <div class="absolute bottom-14 right-6 z-10 text-3xl" style="animation:sway 2.5s ease-in-out infinite alternate-reverse;">
-    🦋
-   </div>
-  </div>
-  <script>
-    // Game state
-    let score = 0;
-    let streak = 0;
-    let currentAnswer = 0;
-    let locked = false;
-
-    // Memory Game state
-    let memoryCards = [];
-    let flippedCards = [];
-    let matchedPairs = 0;
-    let memoryLocked = false;
-    let memoryFailures = 0; // Count failures (tiger or non-match)
-    let maxMemoryFailures = 2; // Fail after 2 failures
-    let memoryTurns = 0; // Counts total turns for leaderboard
-    let currentPlayerName = null;
-    const animals = [
-      { emoji: '🐱', name: 'cat' },
-      { emoji: '🐶', name: 'dog' },
-      { emoji: '🐰', name: 'rabbit' },
-      { emoji: '🐵', name: 'monkey' }
-    ];
-    const tigerCard = { emoji: '🐯', name: 'tiger' };
-    
-    // Data SDK handler
-    let leaderboardData = [];
-    const dataHandler = {
-      onDataChanged(data) {
-        leaderboardData = data.sort((a, b) => a.turns - b.turns);
-        updateLeaderboardUI();
-      }
-    };
-    
-    // Initialize Data SDK
-    (async () => {
-      if (window.dataSdk) {
-        const result = await window.dataSdk.init(dataHandler);
-        if (!result.isOk) {
-          console.error('Data SDK init failed');
-        }
-      }
-    })();
-
-    const defaultConfig = {
-      game_title: 'บวกลบเลขแสนสนุก',
-      background_color: '#43cea2',
-      text_color: '#ffffff',
-      card_text_color: '#ffffff',
-      accent_color: '#ffd54f',
-      font_family: 'Nunito'
-    };
-
-    function applyConfig(config) {
-      const title = config.game_title || defaultConfig.game_title;
-      document.getElementById('gameTitle').textContent = `🌈 ${title} 🌈`;
-
-      const font = config.font_family || defaultConfig.font_family;
-      document.querySelectorAll('h1, .op-badge, #numA, #numB, #feedback, #scoreText, #streakText, .card')
-        .forEach(el => el.style.fontFamily = `${font}, Nunito, sans-serif`);
-    }
-
-    // Element SDK init
-    if (window.elementSdk) {
-      window.elementSdk.init({
-        defaultConfig,
-        onConfigChange: async (config) => applyConfig(config),
-        mapToCapabilities: (config) => ({
-          recolorables: [
-            { get: () => config.background_color || defaultConfig.background_color, set: (v) => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); } },
-            { get: () => config.text_color || defaultConfig.text_color, set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); } },
-            { get: () => config.card_text_color || defaultConfig.card_text_color, set: (v) => { config.card_text_color = v; window.elementSdk.setConfig({ card_text_color: v }); } },
-            { get: () => config.accent_color || defaultConfig.accent_color, set: (v) => { config.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); } }
-          ],
-          borderables: [],
-          fontEditable: {
-            get: () => config.font_family || defaultConfig.font_family,
-            set: (v) => { config.font_family = v; window.elementSdk.setConfig({ font_family: v }); }
-          },
-          fontSizeable: undefined
-        }),
-        mapToEditPanelValues: (config) => new Map([
-          ['game_title', config.game_title || defaultConfig.game_title]
-        ])
-      });
-    }
-
-    function generateQuestion() {
-      locked = false;
-      const isAdd = Math.random() > 0.4;
-      let a, b, answer;
-
-      if (isAdd) {
-        a = Math.floor(Math.random() * 9) + 1;
-        b = Math.floor(Math.random() * (10 - a)) + 1;
-        answer = a + b;
-      } else {
-        a = Math.floor(Math.random() * 9) + 2;
-        b = Math.floor(Math.random() * (a - 1)) + 1;
-        answer = a - b;
-      }
-
-      currentAnswer = answer;
-
-      const numA = document.getElementById('numA');
-      const numB = document.getElementById('numB');
-      const opSign = document.getElementById('opSign');
-
-      numA.textContent = a;
-      numB.textContent = b;
-      opSign.textContent = isAdd ? '+' : '−';
-
-      numA.classList.remove('bounce-in');
-      numB.classList.remove('bounce-in');
-      void numA.offsetWidth;
-      numA.classList.add('bounce-in');
-      numB.classList.add('bounce-in');
-
-      document.getElementById('feedback').textContent = '';
-      renderCards(answer);
-    }
-
-    function renderCards(answer) {
-      const grid = document.getElementById('cardsGrid');
-      grid.innerHTML = '';
-
-      // Build choices: always include the answer, fill rest with unique numbers 1-10
-      const choices = new Set([answer]);
-      while (choices.size < 10) {
-        choices.add(Math.floor(Math.random() * 10) + 1);
-      }
-
-      const arr = Array.from(choices).sort((a, b) => a - b);
-
-      arr.forEach((num, i) => {
-        const card = document.createElement('button');
-        card.className = `card card-color-${(num - 1) % 10} rounded-2xl text-white font-black text-2xl sm:text-3xl py-3 shadow-lg bounce-in`;
-        card.style.animationDelay = `${i * 0.04}s`;
-        card.textContent = num;
-        card.onclick = () => checkAnswer(num, card);
-        grid.appendChild(card);
-      });
-    }
-
-    function checkAnswer(num, card) {
-      if (locked) return;
-      locked = true;
-
-      const fb = document.getElementById('feedback');
-      const qArea = document.getElementById('questionArea');
-
-      if (num === currentAnswer) {
-        score++;
-        streak++;
-        document.getElementById('scoreText').textContent = score;
-        document.getElementById('streakText').textContent = streak;
-
-        const msgs = ['เก่งมาก! 🎉', 'ถูกต้อง! 🌟', 'สุดยอด! 🏆', 'ยอดเยี่ยม! 💪', 'เยี่ยมเลย! 🥳'];
-        fb.textContent = msgs[Math.floor(Math.random() * msgs.length)];
-        fb.style.color = '#2e7d32';
-
-        qArea.classList.remove('celebrate');
-        void qArea.offsetWidth;
-        qArea.classList.add('celebrate');
-
-        spawnConfetti();
-        
-        // Show memory game after correct answer
-        setTimeout(() => {
-          document.getElementById('questionArea').style.display = 'none';
-          document.getElementById('cardsGrid').parentElement.style.display = 'none';
-          document.getElementById('memoryGameSection').style.display = 'block';
-          initMemoryGame();
-        }, 1200);
-      } else {
-        streak = 0;
-        document.getElementById('streakText').textContent = streak;
-
-        fb.textContent = 'ลองใหม่นะ! 💪';
-        fb.style.color = '#c62828';
-
-        card.style.opacity = '0.3';
-        card.style.pointerEvents = 'none';
-
-        qArea.classList.remove('shake');
-        void qArea.offsetWidth;
-        qArea.classList.add('shake');
-
-        locked = false;
-      }
-    }
-
-    function backToMathQuestion() {
-      document.getElementById('memoryGameSection').style.display = 'none';
-      document.getElementById('questionArea').style.display = 'block';
-      document.getElementById('cardsGrid').parentElement.style.display = 'block';
-      document.getElementById('cardsGrid').querySelectorAll('.card').forEach(c => {
-        c.style.opacity = '1';
-        c.style.pointerEvents = 'auto';
-      });
-      document.getElementById('feedback').textContent = 'ลองตอบอีกครั้ง!';
-      memoryAttempts = 0;
-      locked = false;
-    }
-
-    function updateLeaderboardUI() {
-      const list = document.getElementById('leaderboardList');
-      if (leaderboardData.length === 0) {
-        list.innerHTML = '<p class="text-center text-gray-500 text-sm">ยังไม่มีผู้เล่นใน Leaderboard</p>';
-        return;
-      }
-      
-      list.innerHTML = leaderboardData.slice(0, 10).map((entry, idx) => `
-        <div class="flex justify-between items-center py-2 border-b border-gray-200 ${idx === 0 ? 'bg-yellow-100' : ''}">
-          <span class="font-bold text-lg">${idx + 1}. ${entry.name}</span>
-          <span class="text-purple-600 font-black">${entry.turns} เทิร์น</span>
-        </div>
-      `).join('');
-    }
-
-    function showLeaderboard() {
-      document.getElementById('leaderboardModal').style.display = 'flex';
-      updateLeaderboardUI();
-    }
-
-    function closeLeaderboard() {
-      document.getElementById('leaderboardModal').style.display = 'none';
-      document.getElementById('nameInputSection').style.display = 'none';
-      document.getElementById('playerNameInput').value = '';
-    }
-
-    async function submitPlayerScore() {
-      const nameInput = document.getElementById('playerNameInput');
-      const playerName = nameInput.value.trim();
-      
-      if (!playerName) {
-        nameInput.style.borderColor = '#ff0000';
-        return;
-      }
-      
-      if (window.dataSdk) {
-        const createResult = await window.dataSdk.create({
-          name: playerName,
-          turns: memoryTurns,
-          timestamp: new Date().toISOString()
-        });
-        
-        if (createResult.isOk) {
-          closeLeaderboard();
-          nextMathQuestion();
-        }
-      }
-    }
-
-    function spawnConfetti() {
-      const container = document.getElementById('confettiContainer');
-      const emojis = ['⭐', '🌟', '✨', '💫', '🎉', '🎊'];
-      for (let i = 0; i < 8; i++) {
-        const el = document.createElement('span');
-        el.className = 'star-particle';
-        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        el.style.left = Math.random() * 90 + 5 + '%';
-        el.style.top = Math.random() * 30 + '%';
-        el.style.animationDelay = Math.random() * 0.3 + 's';
-        container.appendChild(el);
-        setTimeout(() => el.remove(), 1500);
-      }
-    }
-
-    function initMemoryGame() {
-      matchedPairs = 0;
-      flippedCards = [];
-      memoryLocked = false;
-      memoryTurns++; // Increment turn counter
-      document.getElementById('turnCount').textContent = memoryTurns;
-
-      // Create card deck: 9 cards total (4 pairs of animals + 1 tiger)
-      const deck = [];
-      animals.forEach(animal => {
-        deck.push({ ...animal, id: animal.name + '1' });
-        deck.push({ ...animal, id: animal.name + '2' });
-      });
-      // Add 1 tiger card
-      deck.push({ ...tigerCard, id: 'tiger1' });
-
-      // Shuffle deck
-      memoryCards = deck.sort(() => Math.random() - 0.5);
-
-      // Render cards
-      const grid = document.getElementById('memoryGrid');
-      grid.innerHTML = '';
-      document.getElementById('failureCount').textContent = memoryFailures;
-
-      memoryCards.forEach((card, index) => {
-        const cardEl = document.createElement('div');
-        cardEl.className = 'memory-card bounce-in';
-        cardEl.style.animationDelay = `${index * 0.05}s`;
-        cardEl.dataset.index = index;
-        cardEl.dataset.id = card.id;
-
-        cardEl.innerHTML = `
-          <div class="memory-card-inner">
-            <div class="memory-card-face memory-card-front">?</div>
-            <div class="memory-card-face memory-card-back">${card.emoji}</div>
-          </div>
-        `;
-
-        cardEl.addEventListener('click', () => flipMemoryCard(cardEl, index));
-        grid.appendChild(cardEl);
-      });
-    }
-
-    function flipMemoryCard(element, index) {
-      if (memoryLocked || element.classList.contains('flipped') || element.classList.contains('matched')) return;
-
-      element.classList.add('flipped');
-      flippedCards.push({ element, index, card: memoryCards[index] });
-
-      if (flippedCards.length === 2) {
-        memoryLocked = true;
-        checkMemoryMatch();
-      }
-    }
-
-    function checkMemoryFailure() {
-      // Called when player fails to match 4 pairs within 3 attempts
-      setTimeout(() => {
-        backToMathQuestion();
-      }, 1500);
-    }
-
-    function checkMemoryMatch() {
-      const [first, second] = flippedCards;
-      const isTiger = first.card.name === 'tiger' || second.card.name === 'tiger';
-      const isMatch = first.card.name === second.card.name;
-
-      if (isTiger) {
-        // Tiger found! Count as failure
-        memoryFailures++;
-        document.getElementById('failureCount').textContent = memoryFailures;
-
-        setTimeout(() => {
-          shuffleUnmatchedCards();
-          flippedCards = [];
-          memoryLocked = false;
-          
-          // Check if we've exceeded max failures after shuffle
-          if (memoryFailures >= maxMemoryFailures) {
-            setTimeout(() => {
-              checkMemoryFailure();
-            }, 600);
-          }
-        }, 800);
-      } else if (isMatch) {
-        // Match found!
-        first.element.classList.add('matched');
-        second.element.classList.add('matched');
-        matchedPairs++;
-        document.getElementById('matchedCount').textContent = matchedPairs;
-
-        flippedCards = [];
-        memoryLocked = false;
-
-        if (matchedPairs === 4) {
-          // All 4 non-tiger pairs matched! Show win modal
-          setTimeout(() => {
-            showMemoryWinModal();
-          }, 600);
-        }
-      } else {
-        // No match, count as failure and flip back
-        memoryFailures++;
-        document.getElementById('failureCount').textContent = memoryFailures;
-
-        setTimeout(() => {
-          first.element.classList.remove('flipped');
-          second.element.classList.remove('flipped');
-          flippedCards = [];
-          memoryLocked = false;
-          
-          // Check if we've exceeded max failures after failed match
-          if (memoryFailures >= maxMemoryFailures) {
-            setTimeout(() => {
-              checkMemoryFailure();
-            }, 600);
-          }
-        }, 800);
-      }
-    }
-
-    function shuffleUnmatchedCards() {
-      const grid = document.getElementById('memoryGrid');
-      const unmatched = [];
-      const matched = [];
-      const unmatchedCardEls = [];
-
-      memoryCards.forEach((card, index) => {
-        const cardEl = grid.children[index];
-        if (cardEl.classList.contains('matched')) {
-          matched.push({ card, cardEl, index });
-        } else {
-          unmatched.push({ card, index });
-          unmatchedCardEls.push(cardEl);
-        }
-      });
-
-      // Shuffle unmatched cards array
-      const shuffledUnmatched = unmatched.sort(() => Math.random() - 0.5);
-
-      // Add shuffle animation to unmatched cards
-      unmatchedCardEls.forEach(card => {
-        card.classList.add('shuffle-animation');
-      });
-
-      setTimeout(() => {
-        // Rebuild memoryCards array: keep matched in place, insert shuffled unmatched in remaining positions
-        const newMemoryCards = [...memoryCards];
-        let unmatchedIdx = 0;
-
-        for (let i = 0; i < newMemoryCards.length; i++) {
-          if (!matched.some(m => m.index === i)) {
-            newMemoryCards[i] = shuffledUnmatched[unmatchedIdx].card;
-            unmatchedIdx++;
-          }
-        }
-
-        memoryCards = newMemoryCards;
-
-        // Update DOM: reorder unmatched card elements
-        const cardElements = Array.from(grid.children);
-        unmatchedIdx = 0;
-
-        for (let i = 0; i < cardElements.length; i++) {
-          if (!cardElements[i].classList.contains('matched')) {
-            const oldCard = cardElements[i];
-            const newCardData = shuffledUnmatched[unmatchedIdx].card;
-            unmatchedIdx++;
-
-            // Reset card state
-            oldCard.classList.remove('shuffle-animation', 'flipped');
-            oldCard.dataset.id = newCardData.id;
-
-            // Update card inner HTML
-            const inner = oldCard.querySelector('.memory-card-inner');
-            inner.style.transform = '';
-            const backFace = oldCard.querySelector('.memory-card-back');
-            backFace.textContent = newCardData.emoji;
-          }
-        }
-
-        // Check if we've exceeded max attempts
-        if (memoryAttempts >= maxMemoryAttempts) {
-          setTimeout(() => {
-            checkMemoryFailure();
-          }, 600);
-        }
-      }, 500);
-    }
-
-    function showMemoryWinModal() {
-      document.getElementById('finalTurns').textContent = memoryTurns;
-      setTimeout(() => {
-        document.getElementById('leaderboardModal').style.display = 'flex';
-        document.getElementById('nameInputSection').style.display = 'block';
-        document.getElementById('playerNameInput').focus();
-        updateLeaderboardUI();
-      }, 1200);
-    }
-
-    function nextMathQuestion() {
-      document.getElementById('memoryGameSection').style.display = 'none';
-      document.getElementById('questionArea').style.display = 'block';
-      document.getElementById('cardsGrid').parentElement.style.display = 'block';
-      memoryFailures = 0; // Reset failures for new game
-      memoryTurns = 0; // Reset turn counter for new game
-      document.getElementById('turnCount').textContent = '0';
-      generateQuestion();
-    }
-
-    async function submitPlayerScore() {
-      const nameInput = document.getElementById('playerNameInput');
-      const playerName = nameInput.value.trim();
-      
-      if (!playerName) {
-        nameInput.style.borderColor = '#ff0000';
-        return;
-      }
-      
-      if (window.dataSdk) {
-        const createResult = await window.dataSdk.create({
-          name: playerName,
-          turns: memoryTurns,
-          timestamp: new Date().toISOString()
-        });
-        
-        if (createResult.isOk) {
-          closeLeaderboard();
-          nextMathQuestion();
-        }
-      }
-    }
-
-    generateQuestion();
-    lucide.createIcons();
-  </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e77092a04ce4b65',t:'MTc3NTM3NjIwMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids Math Game</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body {
+  font-family: 'Kanit', sans-serif;
+  background: linear-gradient(to bottom, #43cea2, #b6f5d8);
+}
+</style>
+</head>
+
+<body class="flex flex-col items-center justify-center min-h-screen">
+
+<!-- 🎵 BGM -->
+<audio id="bgm" src="./bgm.mp3" loop></audio>
+
+<!-- 🔊 ปุ่มเสียง -->
+<button onclick="toggleBGM()" class="fixed top-3 right-3 bg-white px-3 py-2 rounded-full shadow font-bold">
+🔊
+</button>
+
+<h1 class="text-3xl font-black text-white mb-4">🌈 เกมบวกลบเลข 🌈</h1>
+
+<div id="question" class="text-5xl font-black mb-6"></div>
+
+<div id="choices" class="grid grid-cols-5 gap-3 mb-4"></div>
+
+<div id="feedback" class="text-xl font-bold h-10"></div>
+
+<script>
+let currentAnswer = 0;
+let bgmStarted = false;
+
+// 🎵 เล่นเพลง
+function startBGM(){
+  if(bgmStarted) return;
+  const audio = document.getElementById("bgm");
+  audio.volume = 0.4;
+  audio.play().catch(()=>{});
+  bgmStarted = true;
+}
+
+// 🔊 toggle
+function toggleBGM(){
+  const audio = document.getElementById("bgm");
+  if(audio.paused) audio.play();
+  else audio.pause();
+}
+
+// 🎲 สร้างโจทย์
+function generateQuestion(){
+  const isAdd = Math.random() > 0.5;
+  let a = Math.floor(Math.random()*9)+1;
+  let b = Math.floor(Math.random()*9)+1;
+
+  if(!isAdd && a<b) [a,b] = [b,a];
+
+  currentAnswer = isAdd ? a+b : a-b;
+
+  document.getElementById("question").innerText =
+    `${a} ${isAdd?'+':'-'} ${b} = ?`;
+
+  renderChoices();
+}
+
+// 🎯 ตัวเลือก
+function renderChoices(){
+  const box = document.getElementById("choices");
+  box.innerHTML = "";
+
+  let nums = new Set([currentAnswer]);
+  while(nums.size < 10){
+    nums.add(Math.floor(Math.random()*10)+1);
+  }
+
+  [...nums].sort((a,b)=>a-b).forEach(n=>{
+    const btn = document.createElement("button");
+    btn.innerText = n;
+    btn.className = "bg-blue-500 text-white text-2xl rounded-xl p-3 font-bold";
+    btn.onclick = ()=>checkAnswer(n);
+    box.appendChild(btn);
+  });
+}
+
+// ✅ ตรวจคำตอบ
+function checkAnswer(n){
+  startBGM();
+
+  const fb = document.getElementById("feedback");
+
+  if(n === currentAnswer){
+    fb.innerText = "ถูกต้อง! 🎉";
+    fb.style.color = "green";
+
+    // ⭐ เก็บคะแนน
+    saveScore("Player", Math.floor(Math.random()*10));
+
+  }else{
+    fb.innerText = "ผิด ลองใหม่!";
+    fb.style.color = "red";
+  }
+
+  setTimeout(generateQuestion, 800);
+}
+
+// 🏆 Leaderboard (local)
+function saveScore(name, score){
+  let data = JSON.parse(localStorage.getItem("leaderboard") || "[]");
+
+  data.push({name, score});
+  data.sort((a,b)=>b.score-a.score);
+
+  localStorage.setItem("leaderboard", JSON.stringify(data));
+
+  console.log("Leaderboard:", data);
+}
+
+// 🚀 start
+generateQuestion();
+</script>
+
+</body>
 </html>
