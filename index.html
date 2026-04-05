@@ -1,124 +1,103 @@
 <!doctype html>
-<html lang="th">
+<html lang="th" class="h-full">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kids Math Game</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kids Math Adventure</title>
 
-<script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
 
-<style>
-body {
-  font-family: 'Kanit', sans-serif;
-  background: linear-gradient(to bottom, #43cea2, #b6f5d8);
-}
-</style>
+  <style>
+    * { font-family: 'Nunito', sans-serif; }
+    html, body { height: 100%; margin: 0; }
+
+    .sky-bg {
+      background: linear-gradient(180deg, #43cea2 0%, #85e7c9 30%, #b6f5d8 50%, #f9fbe7 70%, #fff9c4 100%);
+    }
+  </style>
 </head>
 
-<body class="flex flex-col items-center justify-center min-h-screen">
+<body class="h-full overflow-auto">
 
-<!-- 🎵 BGM -->
+<!-- ✅ BGM -->
 <audio id="bgm" src="./bgm.mp3" loop></audio>
 
-<!-- 🔊 ปุ่มเสียง -->
-<button onclick="toggleBGM()" class="fixed top-3 right-3 bg-white px-3 py-2 rounded-full shadow font-bold">
-🔊
-</button>
+<div id="app" class="sky-bg w-full h-full flex flex-col items-center justify-center">
 
-<h1 class="text-3xl font-black text-white mb-4">🌈 เกมบวกลบเลข 🌈</h1>
+  <h1 class="text-3xl font-black text-white mb-4">🌈 บวกลบเลขแสนสนุก 🌈</h1>
 
-<div id="question" class="text-5xl font-black mb-6"></div>
+  <div id="question" class="text-5xl font-black mb-6"></div>
 
-<div id="choices" class="grid grid-cols-5 gap-3 mb-4"></div>
+  <div id="choices" class="grid grid-cols-5 gap-3 mb-4"></div>
 
-<div id="feedback" class="text-xl font-bold h-10"></div>
+  <div id="feedback" class="text-xl font-bold h-10"></div>
+
+</div>
 
 <script>
-let currentAnswer = 0;
+// 🎵 BGM
 let bgmStarted = false;
 
-// 🎵 เล่นเพลง
-function startBGM(){
-  if(bgmStarted) return;
+function startBGM() {
+  if (bgmStarted) return;
   const audio = document.getElementById("bgm");
   audio.volume = 0.4;
-  audio.play().catch(()=>{});
+  audio.play().catch(() => {});
   bgmStarted = true;
 }
 
-// 🔊 toggle
-function toggleBGM(){
-  const audio = document.getElementById("bgm");
-  if(audio.paused) audio.play();
-  else audio.pause();
-}
+// 🎮 GAME
+let currentAnswer = 0;
 
-// 🎲 สร้างโจทย์
-function generateQuestion(){
+function generateQuestion() {
   const isAdd = Math.random() > 0.5;
-  let a = Math.floor(Math.random()*9)+1;
-  let b = Math.floor(Math.random()*9)+1;
+  let a = Math.floor(Math.random() * 9) + 1;
+  let b = Math.floor(Math.random() * 9) + 1;
 
-  if(!isAdd && a<b) [a,b] = [b,a];
+  if (!isAdd && a < b) [a, b] = [b, a];
 
-  currentAnswer = isAdd ? a+b : a-b;
+  currentAnswer = isAdd ? a + b : a - b;
 
   document.getElementById("question").innerText =
-    `${a} ${isAdd?'+':'-'} ${b} = ?`;
+    `${a} ${isAdd ? '+' : '-'} ${b} = ?`;
 
   renderChoices();
 }
 
-// 🎯 ตัวเลือก
-function renderChoices(){
-  const box = document.getElementById("choices");
-  box.innerHTML = "";
+function renderChoices() {
+  const container = document.getElementById("choices");
+  container.innerHTML = "";
 
   let nums = new Set([currentAnswer]);
-  while(nums.size < 10){
-    nums.add(Math.floor(Math.random()*10)+1);
+  while (nums.size < 10) {
+    nums.add(Math.floor(Math.random() * 10) + 1);
   }
 
   [...nums].sort((a,b)=>a-b).forEach(n=>{
     const btn = document.createElement("button");
     btn.innerText = n;
     btn.className = "bg-blue-500 text-white text-2xl rounded-xl p-3 font-bold";
-    btn.onclick = ()=>checkAnswer(n);
-    box.appendChild(btn);
+    btn.onclick = () => checkAnswer(n);
+    container.appendChild(btn);
   });
 }
 
-// ✅ ตรวจคำตอบ
-function checkAnswer(n){
-  startBGM();
+function checkAnswer(n) {
+  startBGM(); // ✅ เล่นเพลง
 
   const fb = document.getElementById("feedback");
 
-  if(n === currentAnswer){
+  if (n === currentAnswer) {
     fb.innerText = "ถูกต้อง! 🎉";
     fb.style.color = "green";
-
-    // ⭐ เก็บคะแนน
-    saveScore("Player", Math.floor(Math.random()*10));
-
-  }else{
+  } else {
     fb.innerText = "ผิด ลองใหม่!";
     fb.style.color = "red";
   }
 
   setTimeout(generateQuestion, 800);
-}
-
-// 🏆 Leaderboard (local)
-function saveScore(name, score){
-  let data = JSON.parse(localStorage.getItem("leaderboard") || "[]");
-
-  data.push({name, score});
-  data.sort((a,b)=>b.score-a.score);
-
-  localStorage.setItem("leaderboard", JSON.stringify(data));
-
-  console.log("Leaderboard:", data);
 }
 
 // 🚀 start
